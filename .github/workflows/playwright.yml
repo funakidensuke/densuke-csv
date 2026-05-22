@@ -27,7 +27,7 @@ jobs:
       - name: Run Playwright test for CSV
         run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新"
         env:
-          DENSUKE_URL: ${{ secrets.DENSUKE_URL }}
+          DENSUKE_URL_SUISEI: ${{ secrets.DENSUKE_URL_SUISEI }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
