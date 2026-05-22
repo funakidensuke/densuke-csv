@@ -41,13 +41,13 @@ jobs:
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d '{"status":"success","source":"github-actions"}' \
+          -d '{"status":"success","source":"github-actions","name":"suisei"}' \
           ${{ secrets.GAS_WEBHOOK_URL }}   
       - name: Notify LINE via GAS (Failure)
         if: failure()
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d '{"status":"failure","source":"github-actions","error":"${{ github.workflow }} failed"}' \
+          -d '{"status":"failure","source":"github-actions","error":"${{ github.workflow }} failed","name":"suisei"}' \
           ${{ secrets.GAS_WEBHOOK_URL }}
 
