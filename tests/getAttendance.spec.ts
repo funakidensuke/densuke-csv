@@ -11,66 +11,75 @@ if (process.env.SERVICE_ACCOUNT_JSON) {
   fs.writeFileSync(path.resolve(__dirname, '../service-account.json'), process.env.SERVICE_ACCOUNT_JSON);
 }
 
-const { DENSUKE_URL_SUISEI, SPREADSHEET_ID } = process.env;
+const { DENSUKE_URL_SUISEI, DENSUKE_URL_AKEBONO, SPREADSHEET_ID } = process.env;
 
 test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
-  if (!DENSUKE_URL_SUISEI || !SPREADSHEET_ID) {
-    throw new Error('.env または GitHub Secrets に DENSUKE_URL_SUISEI と SPREADSHEET_ID を設定してください');
+  if (!DENSUKE_URL_SUISEI || !DENSUKE_URL_AKEBONO || !SPREADSHEET_ID) {
+    throw new Error('.env または GitHub Secrets に DENSUKE_URL_SUISEI と DENSUKE_URL_AKEBONO と SPREADSHEET_ID を設定してください');
   }
-  // 伝助ページにアクセス
-  await page.goto(DENSUKE_URL_SUISEI, { waitUntil: 'networkidle' });
 
-  // UTF-8ラジオボタンを選択
-  await page.locator('input[value="utf8"]').check();
+  // 伝助のURLと団名のMAP
+  const URLmap = new Map<string, string>();
 
-  // CSV取得ボタンをクリックしてページ遷移
-  const csvButton = page.locator('input[value="CSV形式で登録データを出力する"]');
-  await csvButton.waitFor({ state: 'visible', timeout: 60000 });
-  await Promise.all([
-    page.waitForLoadState('networkidle'), // ページ遷移完了を待つ
-    csvButton.click(),
-  ]);
+  URLmap.set("粋声", DENSUKE_URL_SUISEI);
+  URLmap.set("あけぼの", DENSUKE_URL_AKEBONO);
 
-// ダウンロードリンクを取得
-  const downloadLink = page.locator('a:has-text("CSVデータを取得する")');
+  for(const [name, url] of URLmap) {
 
-  // CSV保存パス
-  const downloadPath = path.resolve(__dirname, 'attendance.csv');
+    // 伝助ページにアクセス
+    await page.goto(url, { waitUntil: 'networkidle' });
 
-  // ダウンロード
-  const [download] = await Promise.all([
-    page.waitForEvent('download', { timeout: 60000 }),
-    downloadLink.click(),
-  ]);
-  await download.saveAs(downloadPath);
-  console.log('CSVを保存しました:', downloadPath);
+    // UTF-8ラジオボタンを選択
+    await page.locator('input[value="utf8"]').check();
 
-  // CSV読み込み
-  const csvContent = fs.readFileSync(downloadPath, 'utf-8');
-  const records = csvParse(csvContent, { columns: false, skip_empty_lines: true });
+    // CSV取得ボタンをクリックしてページ遷移
+    const csvButton = page.locator('input[value="CSV形式で登録データを出力する"]');
+    await csvButton.waitFor({ state: 'visible', timeout: 60000 });
+    await Promise.all([
+      page.waitForLoadState('networkidle'), // ページ遷移完了を待つ
+      csvButton.click(),
+    ]);
 
-  // Google Sheetsに書き込む
-  const auth = new google.auth.GoogleAuth({
-    keyFile: 'service-account.json',
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-  const sheets = google.sheets({ version: 'v4', auth });
+    // ダウンロードリンクを取得
+    const downloadLink = page.locator('a:has-text("CSVデータを取得する")');
 
-   // ① 既存データをクリア
-  await sheets.spreadsheets.values.clear({
-  spreadsheetId: SPREADSHEET_ID,
-  range: '粋声', // シート全体をクリア
-  });
+    // CSV保存パス
+    const downloadPath = path.resolve(__dirname, 'attendance.csv');
 
-  // Google Sheetsに書き込む
-  const values = records.map(Object.values); // 配列に変換
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SPREADSHEET_ID,
-    range: '粋声!A1',
-    valueInputOption: 'RAW',
-    requestBody: { values },
-  });
+    // ダウンロード
+    const [download] = await Promise.all([
+      page.waitForEvent('download', { timeout: 60000 }),
+      downloadLink.click(),
+    ]);
+    await download.saveAs(downloadPath);
+    console.log('CSVを保存しました:', downloadPath);
 
-  console.log('スプレッドシートを更新しました！');
+    // CSV読み込み
+    const csvContent = fs.readFileSync(downloadPath, 'utf-8');
+    const records = csvParse(csvContent, { columns: false, skip_empty_lines: true });
 
+    // Google Sheetsに書き込む
+    const auth = new google.auth.GoogleAuth({
+      keyFile: 'service-account.json',
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    // ① 既存データをクリア
+    sheets.spreadsheets.values.clear({
+      spreadsheetId: SPREADSHEET_ID,
+      range: name, // シート全体をクリア
+    });
+
+    // Google Sheetsに書き込む
+    const values = records.map(Object.values); // 配列に変換
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${name}!A1`,
+      valueInputOption: 'RAW',
+      requestBody: { values },
+    });
+
+    console.log('スプレッドシートを更新しました！');
+  }
 });

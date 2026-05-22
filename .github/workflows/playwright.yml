@@ -28,6 +28,7 @@ jobs:
         run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新"
         env:
           DENSUKE_URL_SUISEI: ${{ secrets.DENSUKE_URL_SUISEI }}
+          DENSUKE_URL_AKEBONO: ${{ secrets.DENSUKE_URL_AKEBONO }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
@@ -41,13 +42,13 @@ jobs:
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d '{"status":"success","source":"github-actions","name":"粋声"}' \
+          -d '{"status":"success","source":"github-actions"}' \
           ${{ secrets.GAS_WEBHOOK_URL }}   
       - name: Notify LINE via GAS (Failure)
         if: failure()
         run: |
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d '{"status":"failure","source":"github-actions","error":"${{ github.workflow }} failed","name":"粋声"}' \
+          -d '{"status":"failure","source":"github-actions","error":"${{ github.workflow }} failed"}' \
           ${{ secrets.GAS_WEBHOOK_URL }}
 
