@@ -31,7 +31,7 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
     csvButton.click(),
   ]);
 
-  // ダウンロードリンクを取得
+// ダウンロードリンクを取得
   const downloadLink = page.locator('a:has-text("CSVデータを取得する")');
 
   // CSV保存パス
@@ -55,7 +55,14 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
   const sheets = google.sheets({ version: 'v4', auth });
-  
+
+   // ① 既存データをクリア
+  await sheets.spreadsheets.values.clear({
+  spreadsheetId: SPREADSHEET_ID,
+  range: '出欠', // シート全体をクリア
+  });
+
+  // Google Sheetsに書き込む
   const values = records.map(Object.values); // 配列に変換
   await sheets.spreadsheets.values.update({
     spreadsheetId: SPREADSHEET_ID,
