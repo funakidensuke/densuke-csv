@@ -59,14 +59,14 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
    // ① 既存データをクリア
   await sheets.spreadsheets.values.clear({
   spreadsheetId: SPREADSHEET_ID,
-  range: '出欠', // シート全体をクリア
+  range: '粋声出欠', // シート全体をクリア
   });
 
   // Google Sheetsに書き込む
   const values = records.map(Object.values); // 配列に変換
   await sheets.spreadsheets.values.update({
     spreadsheetId: SPREADSHEET_ID,
-    range: '出欠!A1',
+    range: '粋声出欠!A1',
     valueInputOption: 'RAW',
     requestBody: { values },
   });
