@@ -71,7 +71,7 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
       spreadsheetId: SPREADSHEET_ID,
       range: name, // シート全体をクリア
     });
-    console.log('${name}のスプレッドシートをクリアしました！');
+    console.log(name + 'のスプレッドシートをクリアしました！');
 
     // Google Sheetsに書き込む
     const values = records.map(Object.values); // 配列に変換
@@ -82,6 +82,6 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
       requestBody: { values },
     });
 
-    console.log('${name}のスプレッドシートを更新しました！');
+    console.log(name + 'のスプレッドシートを更新しました！');
   }
 });
