@@ -4,6 +4,7 @@ import fs from 'fs';
 import { google } from 'googleapis';
 import { parse as csvParse } from 'csv-parse/sync';
 import dotenv from 'dotenv';
+const { loadConfig } = require('./loadConfig')
 
 dotenv.config();
 
