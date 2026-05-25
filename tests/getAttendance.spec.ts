@@ -64,7 +64,7 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
     const sheets = google.sheets({ version: 'v4', auth });
 
     // ① 既存データをクリア
-    sheets.spreadsheets.values.clear({
+    await sheets.spreadsheets.values.clear({
       spreadsheetId: SPREADSHEET_ID,
       range: name, // シート全体をクリア
     });
