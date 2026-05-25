@@ -21,13 +21,13 @@ const credentials = JSON.parse(credentialsJson)
   })
 
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
-    range: 'config!A:C',
+    spreadsheetId: process.env.CONFIG_SHEET_ID,
+    range: '団体一覧!A:C',
   })
 
   const rows = response.data.values || []
 
-  const config: Record<string, string> = {}
+  const config = new Map<string, string>()
 
   // 1行目スキップ
   for (const row of rows.slice(1)) {
@@ -36,7 +36,7 @@ const credentials = JSON.parse(credentialsJson)
 
     if (!key || !value) continue
 
-    config[key] = value
+    config.set(key, value)
   }
 
   return config

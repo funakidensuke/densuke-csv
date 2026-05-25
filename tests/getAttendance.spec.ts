@@ -19,10 +19,10 @@ test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
   }
 
   // 伝助のURLと団名のMAP
-  const URLmap = new Map<string, string>();
+  const URLmap = await loadConfig()
 
-  URLmap.set("粋声", DENSUKE_URL_SUISEI);
-  URLmap.set("あけぼの", DENSUKE_URL_AKEBONO);
+  //URLmap.set("粋声", DENSUKE_URL_SUISEI);
+  //URLmap.set("あけぼの", DENSUKE_URL_AKEBONO);
 
   for(const [name, url] of URLmap) {
 
