@@ -12,18 +12,15 @@ if (process.env.SERVICE_ACCOUNT_JSON) {
   fs.writeFileSync(path.resolve(__dirname, '../service-account.json'), process.env.SERVICE_ACCOUNT_JSON);
 }
 
-const { DENSUKE_URL_SUISEI, DENSUKE_URL_AKEBONO, SPREADSHEET_ID } = process.env;
+const { SPREADSHEET_ID } = process.env;
 
 test('CSV自動取得＆スプレッドシート更新', async ({ page }) => {
-  if (!DENSUKE_URL_SUISEI || !DENSUKE_URL_AKEBONO || !SPREADSHEET_ID) {
-    throw new Error('.env または GitHub Secrets に DENSUKE_URL_SUISEI と DENSUKE_URL_AKEBONO と SPREADSHEET_ID を設定してください');
+  if (!SPREADSHEET_ID) {
+    throw new Error('.env または GitHub Secrets に SPREADSHEET_ID を設定してください');
   }
 
   // 伝助のURLと団名のMAP
   const URLmap = await loadConfig()
-
-  //URLmap.set("粋声", DENSUKE_URL_SUISEI);
-  //URLmap.set("あけぼの", DENSUKE_URL_AKEBONO);
 
   for(const [name, url] of URLmap) {
 
