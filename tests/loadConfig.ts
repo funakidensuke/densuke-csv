@@ -1,18 +1,42 @@
-import { test, expect } from '@playwright/test';
+const { google } = require('googleapis')
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+async function loadConfig() {
+  const credentials = JSON.parse(
+    process.env.SERVICE_ACCOUNT_JSON
+  )
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  })
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+  const sheets = google.sheets({
+    version: 'v4',
+    auth,
+  })
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: process.env.SHEET_ID,
+    range: 'config!A:C',
+  })
 
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
-});
+  const rows = response.data.values || []
+
+  const config = {}
+
+  // 1行目スキップ
+  for (const row of rows.slice(1)) {
+    const key = row[0]   // A列
+    const value = row[2] // C列
+
+    if (!key || !value) continue
+
+    config[key] = value
+  }
+
+  return config
+}
+
+module.exports = {
+  loadConfig,
+}
