@@ -1,9 +1,14 @@
 const { google } = require('googleapis')
 
 async function loadConfig() {
-  const credentials = JSON.parse(
-    process.env.SERVICE_ACCOUNT_JSON
-  )
+
+  const credentialsJson = process.env.SERVICE_ACCOUNT_JSON
+
+if (!credentialsJson) {
+  throw new Error('SERVICE_ACCOUNT_JSON is not defined')
+}
+
+const credentials = JSON.parse(credentialsJson)
 
   const auth = new google.auth.GoogleAuth({
     credentials,
@@ -22,7 +27,7 @@ async function loadConfig() {
 
   const rows = response.data.values || []
 
-  const config = {}
+  const config: Record<string, string> = {}
 
   // 1行目スキップ
   for (const row of rows.slice(1)) {
