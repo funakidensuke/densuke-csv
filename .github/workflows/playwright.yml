@@ -3,7 +3,7 @@ name: Daily CSV to Google Sheets
 on:
   schedule:
     # 毎日午前6時（日本時間）に実行
-    - cron: '0 10 * * *'
+    - cron: '0 2 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
@@ -27,9 +27,8 @@ jobs:
       - name: Run Playwright test for CSV
         run: npx playwright test --grep "CSV自動取得＆スプレッドシート更新"
         env:
-          DENSUKE_URL_SUISEI: ${{ secrets.DENSUKE_URL_SUISEI }}
-          DENSUKE_URL_AKEBONO: ${{ secrets.DENSUKE_URL_AKEBONO }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          CONFIG_SHEET_ID: ${{ secrets.CONFIG_SHEET_ID }}
           SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
       - name: Upload report (optional)
